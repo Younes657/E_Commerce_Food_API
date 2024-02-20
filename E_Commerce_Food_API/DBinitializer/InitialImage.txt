@@ -1,0 +1,7 @@
+﻿ 
+
+ in this project i am storing my images as bytes (I am using a local store)
+ you have to create a file "InitialImage.cs" and add you custom code to store your initial images from your 
+ local directory
+
+
