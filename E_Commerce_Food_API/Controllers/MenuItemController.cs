@@ -2,6 +2,7 @@
 using E_Commerce_Food_API.Data;
 using E_Commerce_Food_API.Models;
 using E_Commerce_Food_API.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -33,6 +34,7 @@ namespace E_Commerce_Food_API.Controllers
             return Ok(_response);
         }
 
+        [Authorize]
         [HttpGet("{id:int}", Name ="GetMenuItem")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
