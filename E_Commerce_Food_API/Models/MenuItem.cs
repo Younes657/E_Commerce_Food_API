@@ -13,7 +13,6 @@ namespace E_Commerce_Food_API.Models
         public string Category { get; set; }
         [Range(1 , int.MaxValue)]
         public double Price { get; set; }
-       
         public byte[] Image { get; set; }
     }
 }
