@@ -26,11 +26,14 @@ namespace E_Commerce_Food_API.Controllers
         {
             try
             {
+                //ShoppingCart shoppingCart;
                 if (string.IsNullOrEmpty(userId))
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     return BadRequest(_response);
+                    //revise the video 
+                    //shoppingCart = new();
                 }
                 var ShopCart = _db.ShoppingCarts.Include(x=> x.CartItems).ThenInclude(x=> x.MenuItem).Where(x => x.UserId == userId).Select(x => new
                 {

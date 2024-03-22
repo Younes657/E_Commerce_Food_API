@@ -13,6 +13,15 @@ namespace E_Commerce_Food_API.Services
 
             CreateMap<MenuItemUpdateDto, MenuItem>();
             CreateMap<MenuItem, MenuItemUpdateDto>();
+
+            CreateMap<OrderHeaderCreateDTO, OrderHeader>();
+            CreateMap<OrderHeader, OrderHeaderCreateDTO>();
+
+            CreateMap<OrderHeaderUpdateDTO, OrderHeader>();
+            CreateMap<OrderHeader, OrderHeaderUpdateDTO>();
+
+            CreateMap<OrderDetailsCreateDto, OrderDetail>();
+            CreateMap<OrderDetail, OrderDetailsCreateDto>();
         }
     }
 }
