@@ -35,42 +35,42 @@ namespace E_Commerce_Food_API.Controllers
                     //revise the video 
                     //shoppingCart = new();
                 }
-                var ShopCart = _db.ShoppingCarts.Include(x=> x.CartItems).ThenInclude(x=> x.MenuItem).Where(x => x.UserId == userId).Select(x => new
-                {
-                    x.UserId,
-                    x.Id,
-                    x.Total,
-                    CartItems = x.CartItems.Select(u => new
-                    {
-                        u.Id,
-                        u.MenuItemId,
-                        MenuItem = new MenuItem()
-                        {
-                            Id = u.MenuItem.Id,
-                            Name = u.MenuItem.Name,
-                            Description = u.MenuItem.Description,
-                            SpecialTag= u.MenuItem.SpecialTag,
-                            Category= u.MenuItem.Category,
-                            Price = u.MenuItem.Price
-                        },
-                        u.Quantity,
-                        u.ShoppingCartId
-                    })
-                });
+                var ShopCart = await _db.ShoppingCarts.Include(x => x.CartItems).ThenInclude(x => x.MenuItem).FirstOrDefaultAsync(x => x.UserId == userId);
+                //    .Select(x => new
+                //{
+                //    x.UserId,
+                //    x.Id,
+                //    x.Total,
+                //    CartItems = x.CartItems.Select(u => new
+                //    {
+                //        u.Id,
+                //        u.MenuItemId,
+                //        MenuItem = new MenuItem()
+                //        {
+                //            Id = u.MenuItem.Id,
+                //            Name = u.MenuItem.Name,
+                //            Description = u.MenuItem.Description,
+                //            SpecialTag= u.MenuItem.SpecialTag,
+                //            Category= u.MenuItem.Category,
+                //            Price = u.MenuItem.Price
+                //        },
+                //        u.Quantity,
+                //        u.ShoppingCartId
+                //    })
+                //});
                 
-                if (ShopCart == null || ShopCart.Count() <= 0)
+                if (ShopCart == null)
                 {
                     _response.IsSuccess = false;
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     _response.Errors.Add("invalid user id ! check agian");
                     return BadRequest(_response);
                 }
-                double Total = 0;
-                if (ShopCart.FirstOrDefault().CartItems.Any())
-                     Total = ShopCart.FirstOrDefault().CartItems.Sum(u => u.Quantity * u.MenuItem.Price);
+                if (ShopCart.CartItems != null && ShopCart.CartItems.Count > 0)
+                    ShopCart.Total = ShopCart.CartItems.Sum(u => u.Quantity * u.MenuItem.Price);
                 
                 _response.IsSuccess = true;
-                _response.Result = new { ShopCart, Total };
+                _response.Result = ShopCart;
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
                 return Ok(_response);
             }

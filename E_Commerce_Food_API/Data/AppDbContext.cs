@@ -19,11 +19,11 @@ namespace E_Commerce_Food_API.Data
         public DbSet<OrderHeader> OrderHeaders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-            builder.Entity<MenuItem>().HasData(InitialData.GetInitialMenuItems());
+        //protected override void OnModelCreating(ModelBuilder builder)
+        //{
+        //    base.OnModelCreating(builder);
+        //    builder.Entity<MenuItem>().HasData(InitialData.GetInitialMenuItems());
             
-        }
+        //}
     }
 }

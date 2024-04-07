@@ -109,8 +109,8 @@ namespace E_Commerce_Food_API.Controllers
                         _db.OrderDetails.Add(orderDetails);
                     }
                     _db.SaveChanges();
-                    _response.Result = order;
                     order.OrderDetails = null;
+                    _response.Result = order;
                     _response.StatusCode = HttpStatusCode.Created;
                     return CreatedAtRoute("GetOrder", new { order.Id }, _response);
                 }

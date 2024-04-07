@@ -25,6 +25,6 @@ namespace E_Commerce_Food_API.Models
         public string Status { get; set; }
         public int TotalItems { get; set; }
 
-        public IEnumerable<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public IEnumerable<OrderDetail>? OrderDetails { get; set; } = [];
     }
 }

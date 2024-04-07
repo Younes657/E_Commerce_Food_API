@@ -1,4 +1,5 @@
 using E_Commerce_Food_API.Data;
+using E_Commerce_Food_API.DBinitializer;
 using E_Commerce_Food_API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -48,6 +49,7 @@ builder.Services.AddControllers();
 
 //add the automapper to services
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddScoped<IInitialData, InitialData>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -98,6 +100,17 @@ app.UseCors(o => o.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin()); // for t
 app.UseAuthentication();
 app.UseAuthorization();
 
+SeedDb();
+
 app.MapControllers();
 
 app.Run();
+
+void SeedDb()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        IInitialData dbInitializer = scope.ServiceProvider.GetRequiredService<IInitialData>();
+        dbInitializer.InitialDb();
+    }
+}
