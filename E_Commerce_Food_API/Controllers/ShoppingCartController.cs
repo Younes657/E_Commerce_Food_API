@@ -26,16 +26,17 @@ namespace E_Commerce_Food_API.Controllers
         {
             try
             {
-                //ShoppingCart shoppingCart;
+                ShoppingCart? ShopCart;
                 if (string.IsNullOrEmpty(userId))
                 {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                    return BadRequest(_response);
-                    //revise the video 
-                    //shoppingCart = new();
+                    ShopCart = new();
                 }
-                var ShopCart = await _db.ShoppingCarts.Include(x => x.CartItems).ThenInclude(x => x.MenuItem).FirstOrDefaultAsync(x => x.UserId == userId);
+                else
+                {
+                     ShopCart = await _db.ShoppingCarts.Include(x => x.CartItems).ThenInclude(x => x.MenuItem).FirstOrDefaultAsync(x => x.UserId == userId);
+
+                }
+                
                 //    .Select(x => new
                 //{
                 //    x.UserId,
@@ -58,15 +59,7 @@ namespace E_Commerce_Food_API.Controllers
                 //        u.ShoppingCartId
                 //    })
                 //});
-                
-                if (ShopCart == null)
-                {
-                    _response.IsSuccess = false;
-                    _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                    _response.Errors.Add("invalid user id ! check agian");
-                    return BadRequest(_response);
-                }
-                if (ShopCart.CartItems != null && ShopCart.CartItems.Count > 0)
+                if (ShopCart != null && ShopCart.CartItems != null && ShopCart.CartItems.Count > 0)
                     ShopCart.Total = ShopCart.CartItems.Sum(u => u.Quantity * u.MenuItem.Price);
                 
                 _response.IsSuccess = true;
@@ -142,7 +135,7 @@ namespace E_Commerce_Food_API.Controllers
                     else
                     {//item already exist and we have to update quantity
                         var newQuantity = CartItemShop.Quantity + UpQuaBy;
-                        if (newQuantity <= 0)
+                        if (newQuantity <= 0 || UpQuaBy == 0)
                         {
                             _db.ItemCarts.Remove(CartItemShop);
                             if (shopCart.CartItems.Count() == 1) //we can not set it to 0 because we did not save the changes yet in the database

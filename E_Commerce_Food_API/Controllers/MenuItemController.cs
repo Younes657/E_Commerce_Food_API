@@ -38,7 +38,7 @@ namespace E_Commerce_Food_API.Controllers
             return Ok(_response);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet("{id:int}", Name ="GetMenuItem")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

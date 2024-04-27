@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,9 @@ builder.Services.AddAuthentication(u =>
 });
 builder.Services.AddCors(); //so if the api is called from some other urls it will work
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+   x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+;
 
 //add the automapper to services
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

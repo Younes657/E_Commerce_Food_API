@@ -13,7 +13,11 @@ namespace E_Commerce_Food_API.Models
         public ICollection<ItemCart> CartItems { get; set; } = new List<ItemCart>();
 
         [NotMapped]
-        public double Total { get; set; } 
-        
+        public double Total { get; set; }
+        [NotMapped]
+        public string? StripePaymentIntentId { get; set; }
+        [NotMapped]
+        public string? ClientSecret { get; set; }
+
     }
 }
