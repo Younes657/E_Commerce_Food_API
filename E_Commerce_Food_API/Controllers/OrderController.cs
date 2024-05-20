@@ -3,10 +3,12 @@ using E_Commerce_Food_API.Data;
 using E_Commerce_Food_API.Models;
 using E_Commerce_Food_API.Models.DTO;
 using E_Commerce_Food_API.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.Json;
 
 namespace E_Commerce_Food_API.Controllers
 {
@@ -24,21 +26,38 @@ namespace E_Commerce_Food_API.Controllers
             _mapper = mapper;
         }
         [HttpGet("{UserId?}")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public ActionResult<ApiResponse> GetOrders(string? UserId )
+        public ActionResult<ApiResponse> GetOrders([FromRoute] string? UserId , string? searchValue , string? Status , int PageNumber = 1 , int Pagesize=5 )
         {
             try
             {
-                var Orders = _db.OrderHeaders.Include(x => x.OrderDetails).OrderByDescending(x => x.Id);
-                if(!string.IsNullOrEmpty(UserId) )
+                IEnumerable<OrderHeader>? Orders = _db.OrderHeaders.Include(x => x.OrderDetails).OrderByDescending(x => x.Id);
+               
+                if (!string.IsNullOrEmpty(searchValue))
                 {
-                    _response.Result = Orders.Where(x => x.UserId == UserId);
+                    Orders = Orders.Where(u => u.PickupEmail.Contains(searchValue) || u.PickupPhoneNumber.Contains(searchValue) || u.PickupName.Contains(searchValue));
                 }
-                else
+                if (!string.IsNullOrEmpty(Status))
                 {
-                    _response.Result = Orders;
+                    Orders = Orders.Where(u => u.Status.ToLower() == Status.ToLower());
                 }
+                if (!string.IsNullOrEmpty(UserId))
+                {
+                    Orders = Orders.Where(x => x.UserId == UserId);
+                }
+                Pagination pagination = new()
+                {
+                    CurrentPage = PageNumber,
+                    PageSize = Pagesize,
+                    TotalCount = Orders.Count(),
+                };
+                Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(pagination));
+
+                Orders = Orders.Skip((PageNumber - 1) * Pagesize).Take(Pagesize);
+
+                _response.Result = Orders;
                 _response.StatusCode = System.Net.HttpStatusCode.OK;
                 _response.IsSuccess = true;
             }catch(Exception ex)
@@ -52,6 +71,7 @@ namespace E_Commerce_Food_API.Controllers
         }
 
         [HttpGet("{Id:int}" , Name = "GetOrder")]
+        [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<ApiResponse> GetSpecificOrder(int Id)
@@ -64,12 +84,12 @@ namespace E_Commerce_Food_API.Controllers
                     _response.IsSuccess = false;
                     return BadRequest(_response);
                 }
-                var Order = _db.OrderHeaders.Include(x => x.OrderDetails).FirstOrDefault(x => x.Id == Id);
+                var Order = _db.OrderHeaders.Include(x => x.OrderDetails).ThenInclude(x => x.MenuItem).FirstOrDefault(x => x.Id == Id);
                 if(Order == null)
                 {
                     _response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                     _response.IsSuccess = false;
-                    _response.Errors.Add("The id Id you provide does not exist !");
+                    _response.Errors.Add("The Id you provide does not exist !");
                     return BadRequest(_response);
                 }
                 _response.Result = Order;
@@ -87,6 +107,8 @@ namespace E_Commerce_Food_API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
+
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public ActionResult<ApiResponse> CreateOrder([FromBody] OrderHeaderCreateDTO orderHeaderCreateDTO)
@@ -112,6 +134,7 @@ namespace E_Commerce_Food_API.Controllers
                     order.OrderDetails = null;
                     _response.Result = order;
                     _response.StatusCode = HttpStatusCode.Created;
+                    
                     return CreatedAtRoute("GetOrder", new { order.Id }, _response);
                 }
                 else
@@ -131,10 +154,12 @@ namespace E_Commerce_Food_API.Controllers
             }
         }
         [HttpPut("{id:int}")]
+        [Authorize]
+
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         //fromform because we need to upload an image not just a json data
-        public async Task<ActionResult<ApiResponse>> UpdateOrder([FromForm] OrderHeaderUpdateDTO OrderUpDto, int id)
+        public async Task<ActionResult<ApiResponse>> UpdateOrder([FromBody] OrderHeaderUpdateDTO OrderUpDto, int id)
         {
             try
             {
@@ -152,13 +177,30 @@ namespace E_Commerce_Food_API.Controllers
                         _response.Errors.Add("the Order does not exist !");
                         return BadRequest(_response);
                     }
-                    OrderDB = _mapper.Map<OrderHeader>(OrderUpDto);
-                   
-                    _db.OrderHeaders.Update(OrderDB);
+                    if (!string.IsNullOrEmpty(OrderUpDto.PickupName))
+                    {
+                        OrderDB.PickupName = OrderUpDto.PickupName;
+                    }
+                    if (!string.IsNullOrEmpty(OrderUpDto.PickupPhoneNumber))
+                    {
+                        OrderDB.PickupPhoneNumber = OrderUpDto.PickupPhoneNumber;
+                    }
+                    if (!string.IsNullOrEmpty(OrderUpDto.PickupEmail))
+                    {
+                        OrderDB.PickupEmail = OrderUpDto.PickupEmail;
+                    }
+                    if (!string.IsNullOrEmpty(OrderUpDto.Status))
+                    {
+                        OrderDB.Status = OrderUpDto.Status;
+                    }
+                    if (!string.IsNullOrEmpty(OrderUpDto.StripePaymentIntentID))
+                    {
+                        OrderDB.StripePaymentIntentID = OrderUpDto.StripePaymentIntentID;
+                    }
                     _db.SaveChanges();
                     _response.IsSuccess = true;
                     _response.StatusCode = HttpStatusCode.NoContent;
-                    _response.Result = OrderDB;
+                    //_response.Result = OrderDB;
                     return Ok(_response);
                 }
                 else

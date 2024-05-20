@@ -15,7 +15,9 @@ namespace E_Commerce_Food_API.Models.DTO
         public double OrderTotal { get; set; }
         public string Status { get; set; }
         public int TotalItems { get; set; }
+        public string StripePaymentIntentID { get; set; }
+        //public IEnumerable<OrderDetailsCreateDto> OrderDetailsDTO { get; set; }
+        public List<OrderDetailsCreateDto> OrderDetailsDTO { get; set; } = [];
 
-        public IEnumerable<OrderDetailsCreateDto> OrderDetailsDTO { get; set; }
     }
 }

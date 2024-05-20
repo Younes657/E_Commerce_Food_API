@@ -13,6 +13,6 @@ namespace E_Commerce_Food_API.Models.DTO
         public string Category { get; set; }
         [Range(1, int.MaxValue)]
         public double Price { get; set; }
-        public IFormFile ImageFile { get; set; }
+        public IFormFile? ImageFile { get; set; }
     }
 }

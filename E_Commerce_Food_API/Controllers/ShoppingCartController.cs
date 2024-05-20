@@ -1,5 +1,6 @@
 ﻿using E_Commerce_Food_API.Data;
 using E_Commerce_Food_API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ namespace E_Commerce_Food_API.Controllers
 {
     [Route("api/ShoppingCart")]
     [ApiController]
+    [Authorize]
     public class ShoppingCartController : ControllerBase
     {
         private readonly AppDbContext _db;

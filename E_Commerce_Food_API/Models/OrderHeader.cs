@@ -21,10 +21,10 @@ namespace E_Commerce_Food_API.Models
 
 
         public DateTime OrderDate { get; set; }
-        //public string StripePaymentIntentID { get; set; }
+        public string StripePaymentIntentID { get; set; }
         public string Status { get; set; }
         public int TotalItems { get; set; }
 
-        public IEnumerable<OrderDetail>? OrderDetails { get; set; } = [];
+        public List<OrderDetail>? OrderDetails { get; set; } = [];
     }
 }

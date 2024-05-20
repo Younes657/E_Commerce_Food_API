@@ -2,6 +2,7 @@
 using E_Commerce_Food_API.Data;
 using E_Commerce_Food_API.Models;
 using E_Commerce_Food_API.Models.DTO;
+using E_Commerce_Food_API.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +75,7 @@ namespace E_Commerce_Food_API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles =SD.Role_admin)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         //fromform because we need to upload an image not just a json data
@@ -139,6 +141,8 @@ namespace E_Commerce_Food_API.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = SD.Role_admin)]
+
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         //fromform because we need to upload an image not just a json data
@@ -157,8 +161,9 @@ namespace E_Commerce_Food_API.Controllers
                     {
                         return BadRequest();
                     }
+                    string PrevImage = menuDb.Image;
                     menuDb = _mapper.Map<MenuItem>(menuUpdate);
-                    if (menuUpdate.ImageFile != null || menuUpdate.ImageFile.Length != 0)
+                    if (menuUpdate.ImageFile != null && menuUpdate.ImageFile.Length != 0)
                     {
                         //byte[] fileBytes;
                         //using (var memoryStream = new MemoryStream())
@@ -177,8 +182,12 @@ namespace E_Commerce_Food_API.Controllers
                             //Copies the contents of the uploaded file to the target stream.
                             menuUpdate.ImageFile.CopyTo(stream);
                         }
-                        menuDb.Image = @"https://localhost:7034\images\Products\" + filename;
-                        
+                        menuDb.Image = @"https://localhost:7034\Images\MenuItems\" + filename;
+
+                    }
+                    else
+                    {
+                        menuDb.Image = PrevImage;
                     }
                     _db.MenuItems.Update(menuDb);
                     _db.SaveChanges();
@@ -204,6 +213,7 @@ namespace E_Commerce_Food_API.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = SD.Role_admin)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         //fromform because we need to upload an image not just a json data
